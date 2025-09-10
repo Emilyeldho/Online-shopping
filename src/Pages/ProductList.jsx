@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import {
     Container,
     TextField,
@@ -7,12 +7,16 @@ import {
     CircularProgress,
     Alert,
     PaginationItem,
-    Stack
+    Stack,
+    Snackbar,
+    Fab,
+    Zoom
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
 import ViewListIcon from '@mui/icons-material/ViewList';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { useNavigate } from "react-router-dom";
 
 import useFetch from '../Hooks/useFetch';
@@ -30,6 +34,8 @@ const ProductList = () => {
     const debouncedSearchTerm = useDebounce(searchTerm, delay);
     const [page, setPage] = useState(1);
     const [viewMode, setViewMode] = useState("grid");
+    const [noMoreItems, setNoMoreItems] = useState(false);
+    const [showScrollTop, setShowScrollTop] = useState(false);
     const limit = 20;
     const loaderRef = useRef(null);
     const navigate = useNavigate();
@@ -68,8 +74,12 @@ const ProductList = () => {
     const handleObserver = useCallback(
         (entries) => {
             const target = entries[0];
-            if (target.isIntersecting && !loading && data && products.length < data.total) {
-                setPage((prev) => prev + 1);
+            if (target.isIntersecting && !loading && data) {
+                if (products.length < data.total) {
+                    setPage((prev) => prev + 1);
+                } else {
+                    setNoMoreItems(true);
+                }
             }
         },
         [loading, data, products.length]
@@ -88,6 +98,18 @@ const ProductList = () => {
             if (loaderRef.current) observer.unobserve(loaderRef.current);
         };
     }, [handleObserver, viewMode]);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            if (window.scrollY > 300) {
+                setShowScrollTop(true);
+            } else {
+                setShowScrollTop(false);
+            }
+        };
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
 
     const cardClick = (id) => () => {
         navigate(`/products/${id}`);
@@ -187,7 +209,6 @@ const ProductList = () => {
                     <CircularProgress size={60} thickness={4} />
                 </Box>
             )}
-
             {error && (
                 <Alert severity="error" sx={{ mb: 4 }}>
                     <CustomChip label="Error" color="error" sx={{ mr: 1 }} />
@@ -317,6 +338,46 @@ const ProductList = () => {
                         )}
                     />
                 </Stack>
+            )}
+
+            <Snackbar
+                open={noMoreItems}
+                autoHideDuration={1000}
+                onClose={() => setNoMoreItems(false)}
+                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+            >
+                <Alert
+                    onClose={() => setNoMoreItems(false)}
+                    severity="info"
+                    sx={{
+                        width: "100%",
+                        justifyContent: "center",
+                        textAlign: "center",
+                    }}
+                >
+                    No more items to load
+                </Alert>
+            </Snackbar>
+
+            {viewMode === "list" && (
+                <Zoom in={showScrollTop}>
+                    <Fab
+                        onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                        sx={{
+                            position: "fixed",
+                            bottom: 30,
+                            right: 30,
+                            backgroundColor: "rgba(0,0,0,0.5)",
+                            color: "#fff",
+                            "&:hover": {
+                                backgroundColor: "rgba(0,0,0,0.7)",
+                            },
+                        }}
+                        size="medium"
+                    >
+                        <KeyboardArrowUpIcon />
+                    </Fab>
+                </Zoom>
             )}
         </Container>
     );

@@ -17,6 +17,8 @@ import {
   Select,
   FormControl,
   InputLabel,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import CustomChip from "../Components/Chip";
@@ -30,6 +32,9 @@ const ProductDetail = () => {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
+
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMsg, setSnackbarMsg] = useState("");
 
   const cartItem = cart.find((item) => item.id === Number(id));
 
@@ -75,14 +80,38 @@ const ProductDetail = () => {
 
   const handleAddToCart = () => {
     addToCart({ ...product, quantity });
+
+    setSnackbarMsg(
+      cartItem ? "Cart updated successfully" : "Item added to cart"
+    );
+    setSnackbarOpen(true);
+  };
+
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
   };
 
   const totalPrice = (product.price * quantity).toFixed(2);
-
   const disableAddButton = cartItem && cartItem.quantity === quantity;
 
   return (
     <Container sx={{ py: 5 }}>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={1000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity="success"
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          {snackbarMsg}
+        </Alert>
+      </Snackbar>
+
       <Stack direction="row" justifyContent="space-between" alignItems="center">
         <Button
           variant="outlined"
