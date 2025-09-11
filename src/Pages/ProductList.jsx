@@ -10,9 +10,12 @@ import {
     Stack,
     Snackbar,
     Fab,
-    Zoom
+    Zoom,
+    Badge,
+    Button
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
 import ViewListIcon from '@mui/icons-material/ViewList';
@@ -27,6 +30,8 @@ import Typography from '../Components/Typography';
 import CustomChip from '../Components/Chip';
 import CustomPagination from '../Components/Pagination';
 import TitleWithTooltip from '../Components/TitleWithToolTip';
+import { addCommas } from '../utils';
+import { useCart } from '../Context/CartContext';
 
 const ProductList = () => {
     const [products, setProducts] = useState([]);
@@ -34,6 +39,7 @@ const ProductList = () => {
     const debouncedSearchTerm = useDebounce(searchTerm, delay);
     const [page, setPage] = useState(1);
     const [viewMode, setViewMode] = useState("grid");
+    const { cart } = useCart();
     const [noMoreItems, setNoMoreItems] = useState(false);
     const [showScrollTop, setShowScrollTop] = useState(false);
     const limit = 20;
@@ -164,8 +170,29 @@ const ProductList = () => {
                         right: 0,
                         display: "flex",
                         alignItems: "center",
+                        gap: 2,
                     }}
                 >
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => navigate("/cart")}
+                        sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            fontWeight: "bold",
+                            textTransform: "none",
+                            borderRadius: "10px",
+                            px: 2,
+                            py: 1,
+                        }}
+                    >
+                        <Badge badgeContent={cart.length} color="error" sx={{ mr: 1 }}>
+                            <ShoppingCartIcon />
+                        </Badge>
+                        Cart
+                    </Button>
+
                     <TitleWithTooltip
                         title="Grid View"
                         onClick={() => setViewMode("grid")}
@@ -244,12 +271,12 @@ const ProductList = () => {
                             <Card
                                 title={item.title}
                                 image={item.thumbnail}
-                                subtitle={`${item.brand} • ${item.category}`}
+                                subtitle={item.brand ? `${item.brand} • ${item.category}` : `${item.category}`}
                                 description={item.description}
                                 onClick={cardClick(item.id)}
                                 tags={[
-                                    { label: `$${item.price}`, color: 'primary' },
-                                    { label: `⭐ ${item.rating}`, color: 'secondary' },
+                                    { name: "price", label: `$${item.price}`, color: 'primary' },
+                                    { name: "rating", label: `⭐ ${item.rating}`, color: 'secondary' },
                                 ]}
                                 elevation={2}
                                 sx={{
@@ -309,7 +336,7 @@ const ProductList = () => {
                                 </Typography>
                             </Box>
                             <Stack spacing={1} direction="row" sx={{ ml: 2 }}>
-                                <CustomChip label={`$${item.price}`} color="primary" />
+                                <CustomChip label={addCommas(`$${item.price}`)} color="primary" />
                                 <CustomChip label={`⭐ ${item.rating}`} color="secondary" />
                             </Stack>
                         </Box>

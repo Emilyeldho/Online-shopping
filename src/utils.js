@@ -6,3 +6,7 @@ export const getColorForLabel = (label, colour) => {
     const index = Math.abs(hash) % colour.length;
     return colour[index];
 }
+
+export const addCommas = (number) => {
+  return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}

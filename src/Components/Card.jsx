@@ -8,6 +8,7 @@ import {
 import Typography from './Typography';
 import Chip from './Chip';
 import TitleWithTooltip from './TitleWithToolTip';
+import { addCommas } from '../utils';
 
 const Card = ({
   title,
@@ -86,7 +87,7 @@ const Card = ({
                   {tags.slice(0, 2).map((tag, i) => (
                     <Chip
                       key={i}
-                      label={tag.label}
+                      label={tag.name === "price" ? addCommas(tag.label) : tag.label}
                       size="small"
                       color={tag.color}
                       variant={tag.variant}

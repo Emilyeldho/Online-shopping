@@ -24,6 +24,7 @@ import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import CustomChip from "../Components/Chip";
 import Typography from "../Components/Typography";
 import { useCart } from "../Context/CartContext";
+import { addCommas } from "../utils";
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -126,14 +127,25 @@ const ProductDetail = () => {
           ⬅ Back
         </Button>
 
-        <Badge
-          badgeContent={cart.length}
-          color="secondary"
-          onClick={() => navigate("/cart")}
-          sx={{ cursor: "pointer" }}
+        <Button
+            variant="contained"
+            color="primary"
+            onClick={() => navigate("/cart")}
+            sx={{
+                display: "flex",
+                alignItems: "center",
+                fontWeight: "bold",
+                textTransform: "none",
+                borderRadius: "10px",
+                px: 2,
+                py: 1,
+            }}
         >
-          <ShoppingCartIcon fontSize="large" />
-        </Badge>
+            <Badge badgeContent={cart.length} color="error" sx={{ mr: 1 }}>
+                <ShoppingCartIcon />
+            </Badge>
+            Cart
+        </Button>
       </Stack>
 
       <Paper
@@ -175,7 +187,6 @@ const ProductDetail = () => {
               {product.brand} • {product.category}
             </Typography>
 
-            {/* Description */}
             <Paper
               elevation={0}
               sx={{
@@ -216,7 +227,7 @@ const ProductDetail = () => {
             <Divider sx={{ my: 2 }} />
             <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
               <CustomChip
-                label={`$${product.price}`}
+                label={addCommas(`$${product.price}`)}
                 color="primary"
                 sx={{ fontSize: "1rem", px: 2, py: 1 }}
               />
@@ -244,7 +255,7 @@ const ProductDetail = () => {
             </FormControl>
 
             <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
-              Total: ${totalPrice}
+              Total: ${addCommas(totalPrice)}
             </Typography>
 
             <Button
@@ -259,7 +270,7 @@ const ProductDetail = () => {
                 py: 1.5,
               }}
               onClick={handleAddToCart}
-              disabled={disableAddButton}
+              disabled={disableAddButton || product.stock === 0}
             >
               {cartItem
                 ? disableAddButton
@@ -322,7 +333,6 @@ const ProductDetail = () => {
                 <Typography
                   variant="body2"
                   color="text.primary"
-                  sx={{ fontWeight: "bold" }}
                 >
                   {review.comment}
                 </Typography>

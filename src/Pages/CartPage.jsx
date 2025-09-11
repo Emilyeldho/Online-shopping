@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import { useCart } from "../Context/CartContext";
 import { useNavigate } from "react-router-dom";
+import { addCommas } from "../utils";
 
 const CartPage = () => {
   const { cart, removeFromCart, totalAmount, clearCart } = useCart();
@@ -82,7 +83,7 @@ const CartPage = () => {
             </Box>
 
             <Typography variant="body1" sx={{ minWidth: 80, textAlign: "right" }}>
-              ${(item.price * item.quantity).toFixed(2)}
+              ${addCommas((item.price * item.quantity).toFixed(2))}
             </Typography>
 
             <Button
@@ -99,7 +100,7 @@ const CartPage = () => {
       <Divider sx={{ my: 3 }} />
 
       <Typography variant="h5" sx={{ fontWeight: "bold", textAlign: "right" }}>
-        Grand Total: ${totalAmount}
+        Grand Total: ${addCommas(totalAmount)}
       </Typography>
 
       <Stack direction="row" spacing={2} sx={{ mt: 2, justifyContent: "flex-end" }}>
