@@ -118,7 +118,7 @@ const ProductList = () => {
     }, []);
 
     const cardClick = (id) => () => {
-        navigate(`/products/${id}`);
+        navigate(`/product/${id}`);
     };
 
     return (

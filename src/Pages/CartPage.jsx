@@ -31,6 +31,10 @@ const CartPage = () => {
     );
   }
 
+  const itemClick = (id) => {
+    navigate(`/product/${id}`);
+  }
+
   return (
     <Container sx={{ mt: 5 }}>
       <Box sx={{ mb: 2 }}>
@@ -57,11 +61,13 @@ const CartPage = () => {
             direction="row"
             alignItems="center"
             spacing={2}
+            onClick={() => itemClick(item.id)}
             sx={{
               p: 2,
               border: "1px solid #ddd",
               borderRadius: 2,
               backgroundColor: "#fafafa",
+              cursor: "pointer"
             }}
           >
             <Card sx={{ width: 60, height: 60, flexShrink: 0 }}>
@@ -88,7 +94,10 @@ const CartPage = () => {
 
             <Button
               color="error"
-              onClick={() => removeFromCart(item.id)}
+              onClick={(event) => {
+                event.stopPropagation();
+                removeFromCart(item.id)}
+              }
               size="small"
             >
               Remove
