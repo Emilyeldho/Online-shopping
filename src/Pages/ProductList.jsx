@@ -41,7 +41,7 @@ const ProductList = () => {
     const [products, setProducts] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const debouncedSearchTerm = useDebounce(searchTerm, delay);
-    const [suggestions, setSuggestions] = useState([]);   // ✅ suggestions state
+    const [suggestions, setSuggestions] = useState([]);
     const [page, setPage] = useState(1);
     const [viewMode, setViewMode] = useState("grid");
     const { cart } = useCart();
@@ -57,7 +57,6 @@ const ProductList = () => {
         }`
     );
 
-    // ✅ Fetch product suggestions separately
     useEffect(() => {
         if (!debouncedSearchTerm) {
             setSuggestions([]);
@@ -72,7 +71,6 @@ const ProductList = () => {
             .catch(() => setSuggestions([]));
     }, [debouncedSearchTerm]);
 
-    // ✅ Suggestion click
     const handleSuggestionClick = (id) => {
         setSuggestions([]);
         setSearchTerm("");
@@ -213,8 +211,6 @@ const ProductList = () => {
                         )}
                     </Box>
                 </Box>
-
-                {/* Cart + view toggle */}
                 <Box
                     sx={{
                         position: "absolute",
