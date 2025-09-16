@@ -12,7 +12,11 @@ import {
     Fab,
     Zoom,
     Badge,
-    Button
+    Button,
+    List,
+    ListItem,
+    ListItemText,
+    Paper
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
@@ -37,6 +41,7 @@ const ProductList = () => {
     const [products, setProducts] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const debouncedSearchTerm = useDebounce(searchTerm, delay);
+    const [suggestions, setSuggestions] = useState([]);   // ✅ suggestions state
     const [page, setPage] = useState(1);
     const [viewMode, setViewMode] = useState("grid");
     const { cart } = useCart();
@@ -51,6 +56,28 @@ const ProductList = () => {
             (page - 1) * limit
         }`
     );
+
+    // ✅ Fetch product suggestions separately
+    useEffect(() => {
+        if (!debouncedSearchTerm) {
+            setSuggestions([]);
+            return;
+        }
+        fetch(`https://dummyjson.com/products/search?q=${debouncedSearchTerm}&limit=5`)
+            .then((res) => res.json())
+            .then((res) => {
+                if (res && res.products) setSuggestions(res.products);
+                else setSuggestions([]);
+            })
+            .catch(() => setSuggestions([]));
+    }, [debouncedSearchTerm]);
+
+    // ✅ Suggestion click
+    const handleSuggestionClick = (id) => {
+        setSuggestions([]);
+        setSearchTerm("");
+        navigate(`/product/${id}`);
+    };
 
     useEffect(() => {
         if (data && data.products) {
@@ -93,11 +120,7 @@ const ProductList = () => {
 
     useEffect(() => {
         if (viewMode !== "list") return;
-        const option = {
-            root: null,
-            rootMargin: "200px",
-            threshold: 0
-        };
+        const option = { root: null, rootMargin: "200px", threshold: 0 };
         const observer = new IntersectionObserver(handleObserver, option);
         if (loaderRef.current) observer.observe(loaderRef.current);
         return () => {
@@ -140,29 +163,58 @@ const ProductList = () => {
                         Explore Products
                     </Typography>
 
-                    <TextField
-                        fullWidth
-                        variant="outlined"
-                        placeholder="🔍 Search products..."
-                        value={searchTerm}
-                        onChange={handleChange}
-                        sx={{
-                            maxWidth: 600,
-                            "& .MuiOutlinedInput-root": {
-                                borderRadius: "50px",
-                                boxShadow: 2,
-                                transition: "0.3s",
-                                "&:hover": {
-                                    boxShadow: 5,
+                    <Box sx={{ position: "relative", display: "inline-block", width: "100%", maxWidth: 600 }}>
+                        <TextField
+                            fullWidth
+                            variant="outlined"
+                            placeholder="🔍 Search products..."
+                            value={searchTerm}
+                            onChange={handleChange}
+                            sx={{
+                                "& .MuiOutlinedInput-root": {
+                                    borderRadius: "50px",
+                                    boxShadow: 2,
+                                    transition: "0.3s",
+                                    "&:hover": { boxShadow: 5 },
                                 },
-                            },
-                            "& input": {
-                                py: 1.5,
-                            },
-                        }}
-                    />
+                                "& input": { py: 1.5 },
+                            }}
+                        />
+                        {suggestions.length > 0 && (
+                            <Paper
+                                elevation={4}
+                                sx={{
+                                    position: "absolute",
+                                    top: "100%",
+                                    left: 0,
+                                    right: 0,
+                                    mt: 1,
+                                    borderRadius: 2,
+                                    overflow: "hidden",
+                                    zIndex: 10,
+                                }}
+                            >
+                                <List>
+                                    {suggestions.map((s) => (
+                                        <ListItem
+                                            key={s.id}
+                                            button
+                                            onClick={() => handleSuggestionClick(s.id)}
+                                            sx={{ "&:hover": { backgroundColor: "action.hover" } }}
+                                        >
+                                            <ListItemText
+                                                primary={s.title}
+                                                secondary={s.brand ? `${s.brand} • ${s.category}` : s.category}
+                                            />
+                                        </ListItem>
+                                    ))}
+                                </List>
+                            </Paper>
+                        )}
+                    </Box>
                 </Box>
 
+                {/* Cart + view toggle */}
                 <Box
                     sx={{
                         position: "absolute",
